@@ -204,7 +204,7 @@ struct glz::meta<Thing>
       "list", &T::list, //
       "deque", &T::deque, //
       "vector", [](auto&& v) -> auto& { return v.vector; }, //
-      "i", [](auto&& v) -> auto& { return v.i; }, //
+      "i", [](auto&& v) -> auto& { return v.i; }, glz::schema{.minimum = 2}, //
       "d", &T::d, "double is the best type", //
       "b", &T::b, //
       "c", &T::c, //
@@ -3297,7 +3297,7 @@ suite json_schema = [] {
       // when you update this string
       expect(
          schema ==
-         R"({"type":["object"],"properties":{"array":{"$ref":"#/$defs/std::array<std::string,4>"},"b":{"$ref":"#/$defs/bool"},"c":{"$ref":"#/$defs/char"},"color":{"$ref":"#/$defs/Color"},"d":{"$ref":"#/$defs/double","description":"double is the best type"},"deque":{"$ref":"#/$defs/std::deque<double>"},"i":{"$ref":"#/$defs/int32_t"},"list":{"$ref":"#/$defs/std::list<int32_t>"},"map":{"$ref":"#/$defs/std::map<std::string,int32_t>"},"mapi":{"$ref":"#/$defs/std::map<int32_t,double>"},"optional":{"$ref":"#/$defs/std::optional<V3>"},"sptr":{"$ref":"#/$defs/std::shared_ptr<sub_thing>"},"thing":{"$ref":"#/$defs/sub_thing"},"thing2array":{"$ref":"#/$defs/std::array<sub_thing2,1>"},"thing_ptr":{"$ref":"#/$defs/sub_thing*"},"v":{"$ref":"#/$defs/std::variant<var1_t,var2_t>"},"vb":{"$ref":"#/$defs/std::vector<bool>"},"vec3":{"$ref":"#/$defs/V3"},"vector":{"$ref":"#/$defs/std::vector<V3>"}},"additionalProperties":false,"$defs":{"Color":{"type":["string"],"oneOf":[{"const":"Red"},{"const":"Green"},{"const":"Blue"}]},"V3":{"type":["array"]},"bool":{"type":["boolean"]},"char":{"type":["string"]},"double":{"type":["number"]},"float":{"type":["number"]},"int32_t":{"type":["integer"]},"std::array<std::string,4>":{"type":["array"],"items":{"$ref":"#/$defs/std::string"}},"std::array<sub_thing2,1>":{"type":["array"],"items":{"$ref":"#/$defs/sub_thing2"}},"std::deque<double>":{"type":["array"],"items":{"$ref":"#/$defs/double"}},"std::list<int32_t>":{"type":["array"],"items":{"$ref":"#/$defs/int32_t"}},"std::map<int32_t,double>":{"type":["object"],"additionalProperties":{"$ref":"#/$defs/double"}},"std::map<std::string,int32_t>":{"type":["object"],"additionalProperties":{"$ref":"#/$defs/int32_t"}},"std::optional<V3>":{"type":["array","null"]},"std::shared_ptr<sub_thing>":{"type":["object","null"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"}},"additionalProperties":false},"std::string":{"type":["string"]},"std::variant<var1_t,var2_t>":{"type":["number","string","boolean","object","array","null"],"oneOf":[{"type":["object"],"properties":{"x":{"$ref":"#/$defs/double"}},"additionalProperties":false},{"type":["object"],"properties":{"y":{"$ref":"#/$defs/double"}},"additionalProperties":false}]},"std::vector<V3>":{"type":["array"],"items":{"$ref":"#/$defs/V3"}},"std::vector<bool>":{"type":["array"],"items":{"$ref":"#/$defs/bool"}},"sub_thing":{"type":["object"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"}},"additionalProperties":false},"sub_thing*":{"type":["object","null"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"}},"additionalProperties":false},"sub_thing2":{"type":["object"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"},"c":{"$ref":"#/$defs/double"},"d":{"$ref":"#/$defs/double"},"e":{"$ref":"#/$defs/double"},"f":{"$ref":"#/$defs/float"},"g":{"$ref":"#/$defs/double"},"h":{"$ref":"#/$defs/double"}},"additionalProperties":false}}})");
+         R"({"type":["object"],"properties":{"array":{"$ref":"#/$defs/std::array<std::string,4>"},"b":{"$ref":"#/$defs/bool"},"c":{"$ref":"#/$defs/char"},"color":{"$ref":"#/$defs/Color"},"d":{"$ref":"#/$defs/double","description":"double is the best type"},"deque":{"$ref":"#/$defs/std::deque<double>"},"i":{"$ref":"#/$defs/int32_t","minimum":2},"list":{"$ref":"#/$defs/std::list<int32_t>"},"map":{"$ref":"#/$defs/std::map<std::string,int32_t>"},"mapi":{"$ref":"#/$defs/std::map<int32_t,double>"},"optional":{"$ref":"#/$defs/std::optional<V3>"},"sptr":{"$ref":"#/$defs/std::shared_ptr<sub_thing>"},"thing":{"$ref":"#/$defs/sub_thing"},"thing2array":{"$ref":"#/$defs/std::array<sub_thing2,1>"},"thing_ptr":{"$ref":"#/$defs/sub_thing*"},"v":{"$ref":"#/$defs/std::variant<var1_t,var2_t>"},"vb":{"$ref":"#/$defs/std::vector<bool>"},"vec3":{"$ref":"#/$defs/V3"},"vector":{"$ref":"#/$defs/std::vector<V3>"}},"additionalProperties":false,"$defs":{"Color":{"type":["string"],"oneOf":[{"const":"Red"},{"const":"Green"},{"const":"Blue"}]},"V3":{"type":["array"]},"bool":{"type":["boolean"]},"char":{"type":["string"]},"double":{"type":["number"]},"float":{"type":["number"]},"int32_t":{"type":["integer"]},"std::array<std::string,4>":{"type":["array"],"items":{"$ref":"#/$defs/std::string"}},"std::array<sub_thing2,1>":{"type":["array"],"items":{"$ref":"#/$defs/sub_thing2"}},"std::deque<double>":{"type":["array"],"items":{"$ref":"#/$defs/double"}},"std::list<int32_t>":{"type":["array"],"items":{"$ref":"#/$defs/int32_t"}},"std::map<int32_t,double>":{"type":["object"],"additionalProperties":{"$ref":"#/$defs/double"}},"std::map<std::string,int32_t>":{"type":["object"],"additionalProperties":{"$ref":"#/$defs/int32_t"}},"std::optional<V3>":{"type":["array","null"]},"std::shared_ptr<sub_thing>":{"type":["object","null"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"}},"additionalProperties":false},"std::string":{"type":["string"]},"std::variant<var1_t,var2_t>":{"type":["number","string","boolean","object","array","null"],"oneOf":[{"type":["object"],"properties":{"x":{"$ref":"#/$defs/double"}},"additionalProperties":false},{"type":["object"],"properties":{"y":{"$ref":"#/$defs/double"}},"additionalProperties":false}]},"std::vector<V3>":{"type":["array"],"items":{"$ref":"#/$defs/V3"}},"std::vector<bool>":{"type":["array"],"items":{"$ref":"#/$defs/bool"}},"sub_thing":{"type":["object"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"}},"additionalProperties":false},"sub_thing*":{"type":["object","null"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"}},"additionalProperties":false},"sub_thing2":{"type":["object"],"properties":{"a":{"$ref":"#/$defs/double","description":"Test comment 1"},"b":{"$ref":"#/$defs/std::string","description":"Test comment 2"},"c":{"$ref":"#/$defs/double"},"d":{"$ref":"#/$defs/double"},"e":{"$ref":"#/$defs/double"},"f":{"$ref":"#/$defs/float"},"g":{"$ref":"#/$defs/double"},"h":{"$ref":"#/$defs/double"}},"additionalProperties":false}}})");
    };
 };
 
@@ -4450,24 +4450,54 @@ suite json_logging = [] {
       auto obj = glz::obj{
          "pi", 3.141, "happy", true, "name", "Stephen", "map", map, "arr", glz::arr{"Hello", "World", 2}, "vec", vec};
 
+      glz::tuplet::get<0>(map.value) = "aa"; // testing lvalue reference storage
+
       std::string s{};
       glz::write_json(obj, s);
 
       expect(
          s ==
-         R"({"pi":3.141,"happy":true,"name":"Stephen","map":{"a":1,"b":2,"c":3},"arr":["Hello","World",2],"vec":[1,2,3]})")
+         R"({"pi":3.141,"happy":true,"name":"Stephen","map":{"aa":1,"b":2,"c":3},"arr":["Hello","World",2],"vec":[1,2,3]})")
+         << s;
+   };
+
+   "json_custom_logging"_test = [] {
+      std::vector vec = {1, 2, 3};
+      std::map<std::string_view, int> map = {{"a", 1}, {"b", 2}, {"c", 3}};
+      auto obj =
+         glz::obj{"pi", 3.141, "happy", true, "name", "Stephen", "map", map, "vec", vec, "my_struct", my_struct{}};
+
+      map["a"] = 0; // testing lvalue reference storage
+
+      std::string s{};
+      glz::write_json(obj, s);
+
+      expect(
+         s ==
+         R"({"pi":3.141,"happy":true,"name":"Stephen","map":{"a":0,"b":2,"c":3},"vec":[1,2,3],"my_struct":{"i":287,"d":3.14,"hello":"Hello World","arr":[1,2,3]}})")
          << s;
    };
 
    "merge_obj"_test = [] {
       glz::obj obj0{"pi", 3.141};
       glz::obj obj1{"happy", true};
-      glz::obj obj2{"arr", glz::arr{"Hello", "World", 2}};
-      auto merged = glz::merge{obj0, obj1, obj2};
+      auto merged = glz::merge{obj0, obj1, glz::obj{"arr", glz::arr{"Hello", "World", 2}}};
+      glz::tuplet::get<0>(obj0.value) = "pie"; // testing that we have an lvalue reference
       std::string s{};
       glz::write_json(merged, s);
 
-      expect(s == R"({"pi":3.141,"happy":true,"arr":["Hello","World",2]})") << s;
+      expect(s == R"({"pie":3.141,"happy":true,"arr":["Hello","World",2]})") << s;
+   };
+
+   "merge_custom"_test = [] {
+      glz::obj obj0{"pi", 3.141};
+      std::map<std::string_view, int> map = {{"a", 1}, {"b", 2}, {"c", 3}};
+      auto merged = glz::merge{obj0, map, my_struct{}};
+      map["a"] = 0; // testing lvalue reference storage
+      std::string s{};
+      glz::write_json(merged, s);
+
+      expect(s == R"({"pi":3.141,"a":0,"b":2,"c":3,"i":287,"d":3.14,"hello":"Hello World","arr":[1,2,3]})") << s;
    };
 };
 
@@ -4635,6 +4665,25 @@ suite invoke_update_test = [] {
       expect(obj.y == 5);
    };
 };
+
+suite char_buffer = [] {
+   "null char*"_test = [] {
+      char* str{};
+      std::string s{};
+      glz::write_json(str, s);
+      expect(s == R"("")");
+   };
+
+   "char*"_test = [] {
+      std::string str = "Spiders";
+      char* ptr = str.data();
+      std::string s{};
+      glz::write_json(ptr, s);
+      expect(s == R"("Spiders")");
+   };
+};
+
+static_assert(!glz::detail::char_array_t<char*>);
 
 int main()
 {
