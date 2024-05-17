@@ -108,6 +108,16 @@ namespace glz
       };
 
       template <class T>
+      struct from_json<raw_t<T>>
+      {
+         template <auto Opts>
+         GLZ_ALWAYS_INLINE static void op(auto&& value, auto&&... args) noexcept
+         {
+            read<json>::op<opt_true<Opts, &opts::raw>>(value.val, args...);
+         }
+      };
+
+      template <class T>
       struct to_json<raw_t<T>>
       {
          template <auto Opts>
