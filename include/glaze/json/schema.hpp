@@ -63,6 +63,15 @@ namespace glz
       // properties
       std::optional<std::span<const std::string_view>> enumeration{}; // enum
 
+      // outside of json schema specification
+      struct outside_specification
+      {
+         std::optional<std::string_view> unit_ascii{};
+         std::optional<std::string_view> unit_unicode{};
+         std::optional<std::string_view> dimension{}; // example "length", "mass", "time" etc.
+      };
+      std::optional<outside_specification> outside_spec{};
+
       static constexpr auto schema_attributes{true}; // allowance flag to indicate metadata within glz::object(...)
 
       // TODO switch to using variants when we have write support to get rid of nulls
@@ -96,7 +105,8 @@ namespace glz
                                                    "minContains", &T::minContains, //
                                                    "maxContains", &T::maxContains, //
                                                    "uniqueItems", &T::uniqueItems, //
-                                                   "enum", &T::enumeration);
+                                                   "enum", &T::enumeration, //
+                                                   "outside_spec", &T::outside_spec);
       };
    };
 
