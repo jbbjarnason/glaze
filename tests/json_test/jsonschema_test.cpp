@@ -22,7 +22,8 @@ struct glz::json_schema<schema_obj>
       // .examples = {"foo", "bar"}, // read of std::span is not supported
       .readOnly = true,
       .writeOnly = true,
-      .constant = "some constant value",
+      // .constant = "some constant value", // todo it is not currently supported to read glz::schema::schema_any, for
+      // reference see function variant_is_auto_deducible
       .minLength = 1L,
       .maxLength = 2L,
       .pattern = "[a-z]+",
@@ -56,7 +57,7 @@ template <class T>
 concept is_optional = glz::is_specialization_v<T, std::optional>;
 
 template <auto Member, typename Value>
-auto expect_property(test_case const& test, std::string_view key, Value value)
+auto expect_property(const test_case& test, std::string_view key, Value value)
 {
    auto schematic = test.obj;
    expect(fatal(schematic.has_value()));
@@ -102,10 +103,6 @@ suite schema_attributes = [] {
    "writeOnly"_test = [] {
       test_case const test{};
       expect_property<&glz::schema::writeOnly>(test, "variable", true);
-   };
-   "constant"_test = [] {
-      test_case const test{};
-      expect_property<&glz::schema::constant>(test, "variable", std::string_view{"some constant value"});
    };
    "minLength"_test = [] {
       test_case const test{};
@@ -204,14 +201,81 @@ struct glz::meta<const_one_number>
    static constexpr auto value = &const_one_number::some_var;
 };
 
+enum struct color : std::uint8_t
+{
+   red = 0,
+   green,
+   blue
+};
+
+template <>
+struct glz::meta<color>
+{
+   using enum color;
+   static constexpr auto value = glz::enumerate("red", red, "green", green, "blue", blue);
+};
+
+struct const_one_enum
+{
+   static constexpr color some_var{color::green};
+};
+
+template <>
+struct glz::meta<const_one_enum>
+{
+   static constexpr auto value = &const_one_enum::some_var;
+};
+
+// This is a simplified version of the schematic struct
+// Since we cannot deduce the variant currently when reading when many number formats are available
+struct schematic_substitute
+{
+   std::optional<std::vector<std::string_view>> type{};
+   struct schema
+   {
+      std::optional<std::variant<bool, std::int64_t, std::string_view>> constant{};
+   };
+   schema attributes{};
+   struct glaze
+   {
+      using T = schematic_substitute;
+      static constexpr auto value = glz::object("type", &T::type, //
+                                                "const", [](auto&& self) -> auto& { return self.attributes.constant; });
+   };
+};
+
 suite direct_accessed_variable = [] {
    "Directly accessed number should only be number"_test = []<typename T>(T) {
       std::string schema_str = glz::write_json_schema<T>();
-      glz::expected obj{glz::read_json<glz::detail::schematic>(schema_str)};
-      expect(obj.has_value());
-      expect(obj->type->size() == 1);
-      expect(obj->type->at(0) == "number");
+      schematic_substitute obj{};
+      glz::context ctx{};
+      auto err = read<glz::opts{.error_on_unknown_keys = false}>(obj, schema_str, ctx);
+      expect(!err) << format_error(err, schema_str);
+      expect(obj.type->size() == 1);
+      expect(obj.type->at(0) == "number");
    } | std::tuple<one_number, const_one_number>{};
+
+   "Constexpr number is constant"_test = [] {
+      std::string schema_str = glz::write_json_schema<const_one_number>();
+      schematic_substitute obj{};
+      glz::context ctx{};
+      auto err = read<glz::opts{.error_on_unknown_keys = false}>(obj, schema_str, ctx);
+      expect(!err) << format_error(err, schema_str);
+      expect(fatal(obj.attributes.constant.has_value()));
+      expect(fatal(std::holds_alternative<std::int64_t>(obj.attributes.constant.value())));
+      expect(std::get<std::int64_t>(obj.attributes.constant.value()) == const_one_number::some_var);
+   };
+
+   "Constexpr enum is constant"_test = [] {
+      std::string schema_str = glz::write_json_schema<const_one_enum>();
+      schematic_substitute obj{};
+      glz::context ctx{};
+      auto err = read<glz::opts{.error_on_unknown_keys = false}>(obj, schema_str, ctx);
+      expect(!err) << format_error(err, schema_str);
+      expect(fatal(obj.attributes.constant.has_value()));
+      expect(fatal(std::holds_alternative<std::string_view>(obj.attributes.constant.value())));
+      expect(std::get<std::string_view>(obj.attributes.constant.value()) == "green");
+   };
 
 };
 
