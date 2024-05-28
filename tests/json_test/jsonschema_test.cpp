@@ -182,25 +182,36 @@ suite schema_attributes = [] {
    };
 };
 
-struct one_variable
+struct one_number
 {
    std::int64_t some_var{42};
 };
 
 template <>
-struct glz::meta<one_variable>
+struct glz::meta<one_number>
 {
-   static constexpr auto value = &one_variable::some_var;
+   static constexpr auto value = &one_number::some_var;
+};
+
+struct const_one_number
+{
+   static constexpr std::int64_t some_var{1337};
+};
+
+template <>
+struct glz::meta<const_one_number>
+{
+   static constexpr auto value = &const_one_number::some_var;
 };
 
 suite direct_accessed_variable = [] {
-   "Directly accessed number should only be number"_test = [] {
-      std::string schema_str = glz::write_json_schema<one_variable>();
+   "Directly accessed number should only be number"_test = []<typename T>(T) {
+      std::string schema_str = glz::write_json_schema<T>();
       glz::expected obj{glz::read_json<glz::detail::schematic>(schema_str)};
       expect(obj.has_value());
       expect(obj->type->size() == 1);
       expect(obj->type->at(0) == "number");
-   };
+   } | std::tuple<one_number, const_one_number>{};
 
 };
 

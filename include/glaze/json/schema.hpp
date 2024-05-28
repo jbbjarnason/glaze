@@ -241,6 +241,17 @@ namespace glz
                using val_t = member_t<T, meta_wrapper_t<T>>;
                to_json_schema<val_t>::template op<Opts>(s, defs);
             }
+            else if constexpr (glaze_const_value_t<T>) {  // &T::constexpr_member
+               using constexpr_val_t = member_t<T, meta_wrapper_t<T>>;
+               static constexpr auto val_v{ *glz::meta_wrapper_v<T> };
+               // if constexpr (glz::detail::glaze_enum_t<constexpr_val_t>) {
+               //    s.attributes.constant = glz::enum_name_v<val_v>;
+               // } else {
+                  // General case, needs to be convertible to schema_any
+                  // s.attributes.constant = val_v;
+               // }
+               to_json_schema<constexpr_val_t>::template op<Opts>(s, defs);
+            }
             else {
                s.type = {"number", "string", "boolean", "object", "array", "null"};
             }
