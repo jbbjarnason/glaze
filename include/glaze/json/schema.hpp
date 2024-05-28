@@ -234,9 +234,16 @@ namespace glz
       struct to_json_schema
       {
          template <auto Opts>
-         static void op(auto& s, auto&) noexcept
+         static void op(auto& s, auto& defs) noexcept
          {
-            s.type = {"number", "string", "boolean", "object", "array", "null"};
+            // &T::member
+            if constexpr (glaze_t<T> && std::is_member_object_pointer_v<meta_wrapper_t<T>>) {
+               using val_t = member_t<T, meta_wrapper_t<T>>;
+               to_json_schema<val_t>::template op<Opts>(s, defs);
+            }
+            else {
+               s.type = {"number", "string", "boolean", "object", "array", "null"};
+            }
          }
       };
 

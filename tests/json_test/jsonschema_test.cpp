@@ -182,4 +182,26 @@ suite schema_attributes = [] {
    };
 };
 
+struct one_variable
+{
+   std::int64_t some_var{42};
+};
+
+template <>
+struct glz::meta<one_variable>
+{
+   static constexpr auto value = &one_variable::some_var;
+};
+
+suite direct_accessed_variable = [] {
+   "Directly accessed number should only be number"_test = [] {
+      std::string schema_str = glz::write_json_schema<one_variable>();
+      glz::expected obj{glz::read_json<glz::detail::schematic>(schema_str)};
+      expect(obj.has_value());
+      expect(obj->type->size() == 1);
+      expect(obj->type->at(0) == "number");
+   };
+
+};
+
 int main() { return boost::ut::cfg<>.run({.report_errors = true}); }
